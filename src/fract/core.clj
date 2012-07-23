@@ -15,6 +15,7 @@
    ]
   [:script {:type "text/javascript" :src "libs/jquery.js"}]
   [:script {:type "text/javascript" :src "js/main.js"}]
+  [:style "div:focus { outline:none;}"]
   ]
  ]))
 (route/resources "/")

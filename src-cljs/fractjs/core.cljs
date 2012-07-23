@@ -12,7 +12,7 @@
     (fn [evt]
       (let [elem ($ :div.container)]
         (-> js/window .getSelection (.getRangeAt 0) (.insertNode (.get ($ "<span id='selection'/>") 0)))
-        (.html elem (apply str (map (comp splitSentences spanify) (-> elem .contents .toArray))))
+        (.html elem (apply str (map spanify (-> elem .contents .toArray))))
         ;; (.html elem (map spanify (-> elem (.get 0) .-childNodes)))
         (let [range (.createRange js/document)
               mark (-> :span#selection $)
@@ -43,6 +43,8 @@
         ;;sel.removeAllRanges();
         ;;sel.addRange(range);
 
+
+
 (defn spanify [elem]
   (let [content (-> elem $ .html)
         id (-> elem $ (attr "id"))
@@ -50,13 +52,9 @@
         nname (-> elem .-nodeName)]
     (cond
      (= ntype 1) (cond
-                  (= nname "BR") "\n"
-                  (= nname "SPAN") (str "<span id='" id "'>" content "</span>"))
-     (= ntype 3) (str "<span id='" id "'>" content "</span>")
-     :else "")))
+                  (= nname "SPAN") (sen/spanner content id)
+                  :else content)
+     ;;(= ntype 3) (sen/spanner content nil)
+     :else "?")))
 
-(defn splitSentences [html]
-  html)
-  ;;(st/replace html #"\. [^<]" ". </span><span>"))
-  
-(-> :div.container $ (.html "<span>test</span>"))
+(-> :div.container $ (.html "<span id='0'>test</span>"))

@@ -20379,16 +20379,22 @@ clojure.string.escape = function escape(s, cmap) {
 goog.provide("fract.shared.sentence");
 goog.require("cljs.core");
 goog.require("clojure.string");
-fract.shared.sentence.parse = function parse(text) {
-  return clojure.string.split.call(null, text, /\./)
+fract.shared.sentence.cur = cljs.core.atom.call(null, 0);
+fract.shared.sentence.sentence = function sentence(id, text) {
+  return[cljs.core.str("<span id='"), cljs.core.str(function() {
+    var or__3824__auto____173687 = id;
+    if(cljs.core.truth_(or__3824__auto____173687)) {
+      return or__3824__auto____173687
+    }else {
+      return cljs.core.swap_BANG_.call(null, fract.shared.sentence.cur, function(old) {
+        return 1 + old
+      })
+    }
+  }()), cljs.core.str("'>"), cljs.core.str(text), cljs.core.str("</span>")].join("")
 };
-fract.shared.sentence.decorate = function decorate(sentenceList) {
-  return cljs.core.map.call(null, function(sentence) {
-    return cljs.core.PersistentVector.fromArray(["\ufdd0'span", sentence], true)
-  }, sentenceList)
-};
-fract.shared.sentence.transform = function transform(text) {
-  return fract.shared.sentence.decorate.call(null, fract.shared.sentence.parse.call(null, text))
+fract.shared.sentence.spanner = function spanner(span, id) {
+  var parts__173689 = clojure.string.split.call(null, span, /(?=[\.!?]\s+)/);
+  return cljs.core.apply.call(null, cljs.core.str, cljs.core.cons.call(null, fract.shared.sentence.sentence.call(null, id, cljs.core.first.call(null, parts__173689)), cljs.core.map.call(null, cljs.core.partial.call(null, fract.shared.sentence.sentence, null), cljs.core.rest.call(null, parts__173689))))
 };
 goog.provide("hiccups.runtime");
 goog.require("cljs.core");
@@ -21166,47 +21172,40 @@ goog.require("hiccups.runtime");
 goog.require("fract.shared.sentence");
 goog.require("jayq.core");
 jayq.core.on.call(null, jayq.core.$.call(null, "\ufdd0'div.container"), "\ufdd0'keyup", "", function(evt) {
-  var elem__284517 = jayq.core.$.call(null, "\ufdd0'div.container");
+  var elem__185176 = jayq.core.$.call(null, "\ufdd0'div.container");
   window.getSelection().getRangeAt(0).insertNode(jayq.core.$.call(null, "<span id='selection'/>").get(0));
-  elem__284517.html(cljs.core.apply.call(null, cljs.core.str, cljs.core.map.call(null, cljs.core.comp.call(null, fractjs.core.splitSentences, fractjs.core.spanify), elem__284517.contents().toArray())));
-  var range__284518 = document.createRange();
-  var mark__284519 = jayq.core.$.call(null, "\ufdd0'span#selection");
-  var markEl__284520 = mark__284519.get(0);
-  var sel__284521 = document.getSelection();
-  range__284518.setStartAfter(markEl__284520);
-  range__284518.setEndAfter(markEl__284520);
-  sel__284521.removeAllRanges();
-  sel__284521.addRange(range__284518);
-  return mark__284519.remove()
+  elem__185176.html(cljs.core.apply.call(null, cljs.core.str, cljs.core.map.call(null, fractjs.core.spanify, elem__185176.contents().toArray())));
+  var range__185177 = document.createRange();
+  var mark__185178 = jayq.core.$.call(null, "\ufdd0'span#selection");
+  var markEl__185179 = mark__185178.get(0);
+  var sel__185180 = document.getSelection();
+  range__185177.setStartAfter(markEl__185179);
+  range__185177.setEndAfter(markEl__185179);
+  sel__185180.removeAllRanges();
+  sel__185180.addRange(range__185177);
+  return mark__185178.remove()
 });
 fractjs.core.spanify = function spanify(elem) {
-  var content__284526 = jayq.core.$.call(null, elem).html();
-  var id__284527 = jayq.core.attr.call(null, jayq.core.$.call(null, elem), "id");
-  var ntype__284528 = elem.nodeType;
-  var nname__284529 = elem.nodeName;
-  if(cljs.core._EQ_.call(null, ntype__284528, 1)) {
-    if(cljs.core._EQ_.call(null, nname__284529, "BR")) {
-      return"\n"
+  var content__185185 = jayq.core.$.call(null, elem).html();
+  var id__185186 = jayq.core.attr.call(null, jayq.core.$.call(null, elem), "id");
+  var ntype__185187 = elem.nodeType;
+  var nname__185188 = elem.nodeName;
+  if(cljs.core._EQ_.call(null, ntype__185187, 1)) {
+    if(cljs.core._EQ_.call(null, nname__185188, "SPAN")) {
+      return fract.shared.sentence.spanner.call(null, content__185185, id__185186)
     }else {
-      if(cljs.core._EQ_.call(null, nname__284529, "SPAN")) {
-        return[cljs.core.str("<span id='"), cljs.core.str(id__284527), cljs.core.str("'>"), cljs.core.str(content__284526), cljs.core.str("</span>")].join("")
+      if("\ufdd0'else") {
+        return content__185185
       }else {
         return null
       }
     }
   }else {
-    if(cljs.core._EQ_.call(null, ntype__284528, 3)) {
-      return[cljs.core.str("<span id='"), cljs.core.str(id__284527), cljs.core.str("'>"), cljs.core.str(content__284526), cljs.core.str("</span>")].join("")
+    if("\ufdd0'else") {
+      return"?"
     }else {
-      if("\ufdd0'else") {
-        return""
-      }else {
-        return null
-      }
+      return null
     }
   }
 };
-fractjs.core.splitSentences = function splitSentences(html) {
-  return html
-};
-jayq.core.$.call(null, "\ufdd0'div.container").html("<span>test</span>");
+jayq.core.$.call(null, "\ufdd0'div.container").html("<span id='0'>test</span>");

@@ -1,11 +1,15 @@
 (ns fract.shared.sentence
-  (:require [clojure.string :as s]))
+  (:require [clojure.string :as st]))
 
-(defn parse [text]
-  (s/split text #"\."))
+(def cur (atom 0))
 
-(defn decorate [sentenceList]
-  (map (fn [sentence] [:span sentence]) sentenceList))
+(defn sentence [id text]
+  (str "<span id='" (or id (swap! cur (fn [old] (+ 1 old)))) "'>" text "</span>"))
 
-(defn transform [text]
-  (decorate (parse text)))
+(defn spanner [span id]
+  (let [parts (st/split span #"(?=[\.!?]\s+)")]
+      (apply str (cons (sentence id (first parts))
+      (map (partial sentence nil)
+           (rest parts))))))
+
+
